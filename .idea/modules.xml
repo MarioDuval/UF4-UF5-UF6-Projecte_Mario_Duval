@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/UF4-UF5-UF6-Projecte_Mario_Duval.iml" filepath="$PROJECT_DIR$/UF4-UF5-UF6-Projecte_Mario_Duval.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cat.mvm.modular.entities/cat.mvm.modular.entities.iml" filepath="$PROJECT_DIR$/cat.mvm.modular.entities/cat.mvm.modular.entities.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cat.mvm.modular.products/cat.mvm.modular.products.iml" filepath="$PROJECT_DIR$/cat.mvm.modular.products/cat.mvm.modular.products.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cat.mvm.modular.ui/cat.mvm.modular.ui.iml" filepath="$PROJECT_DIR$/cat.mvm.modular.ui/cat.mvm.modular.ui.iml" />
+    </modules>
+  </component>
+</project>
