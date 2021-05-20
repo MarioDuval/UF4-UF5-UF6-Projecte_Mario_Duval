@@ -1,5 +1,7 @@
 package cat.mvm.modular.entities;
 
+import cat.mvm.modular.entities.Sephora;
+
 public class Data {
     private int code;
     private String name;

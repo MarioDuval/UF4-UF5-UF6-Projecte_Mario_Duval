@@ -1,9 +1,17 @@
 package cat.mvm.modular.entities;
 
 import cat.mvm.modular.products.Calculator;
+import cat.mvm.modular.entities.Data;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.beans.ExceptionListener;
+import java.sql.*;
+import java.util.InputMismatchException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class Sephora extends JFrame{
     private JLabel jlbCode;
@@ -14,11 +22,13 @@ public class Sephora extends JFrame{
     private JLabel jlbQuantity;
     private JTextField jtfCode;
     private JTextField jtfName;
-    private JTextField jtfFamily;
+    private JComboBox jtfFamily;
     private JTextField jtfType;
     private JTextField jtfPrice;
     private JTextField jtfQuantity;
     private JButton jbtOK;
+    private JButton jbtStats;
+
 
     public Sephora(){
         this.setVisible(true);
@@ -38,11 +48,12 @@ public class Sephora extends JFrame{
         jlbQuantity = new JLabel();
         jtfCode = new JTextField();
         jtfName = new JTextField();
-        jtfFamily = new JTextField();
+        jtfFamily = new JComboBox();
         jtfType = new JTextField();
         jtfPrice = new JTextField();
         jtfQuantity = new JTextField();
         jbtOK = new JButton();
+        jbtStats = new JButton();
 
         getContentPane().setLayout(null);
 
@@ -53,6 +64,8 @@ public class Sephora extends JFrame{
         jtfCode.setHorizontalAlignment(JTextField.LEFT);
         getContentPane().add(jtfCode);
         jtfCode.setBounds(80, 25, 350, 20);
+        System.out.println(jtfCode);
+        String code = jtfCode.getText();
 
         jlbName.setText("Nom");
         getContentPane().add(jlbName);
@@ -61,14 +74,18 @@ public class Sephora extends JFrame{
         jtfName.setHorizontalAlignment(JTextField.LEFT);
         getContentPane().add(jtfName);
         jtfName.setBounds(80, 70, 350, 20);
+        System.out.println(jtfName.getText());
 
-        jlbFamily.setText("Familia");
+        jlbFamily.setText("Familia (1 Cosmetica, 2 Perfumeria, 3 Maquillatje)");
         getContentPane().add(jlbFamily);
-        jlbFamily.setBounds(12, 118, 104, 14);
+        jlbFamily.setBounds(12, 118, 300, 14);
 
-        jtfFamily.setHorizontalAlignment(JTextField.LEFT);
+        String[] choices = { "1", "2", "3"};
+        final JComboBox<String> jtfFamily = new JComboBox<String>(choices);
+
         getContentPane().add(jtfFamily);
-        jtfFamily.setBounds(80, 115, 350, 20);
+        jtfFamily.setVisible(true);
+        jtfFamily.setBounds(315, 115, 33, 20);
 
         jlbType.setText("Tipus");
         getContentPane().add(jlbType);
@@ -97,9 +114,132 @@ public class Sephora extends JFrame{
         jbtOK.setText("OK");
         jbtOK.setMnemonic('O');
         getRootPane().setDefaultButton(jbtOK);
-        getContentPane().add(jbtOK);
+        jbtOK.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    jbtOKActionPerformed(e);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        });
+                getContentPane().add(jbtOK);
         jbtOK.setBounds(355, 300, 75, 24);
+
+        jbtStats.setText("Estadistiques");
+        jbtStats.setMnemonic('S');
+        getRootPane().setDefaultButton(jbtStats);
+        getContentPane().add(jbtStats);
+        jbtStats.setBounds(20, 300, 115, 24);
+
+
+    }
+    private void jbtOKActionPerformed(ActionEvent e) throws SQLException {
+        try {
+            if (e.getSource() == jbtOK) {
+                String data = jtfCode.getText();
+                int code = Integer.parseInt(data);
+                if ((code > 0) && (code < 1000)) {
+                    //System.out.println("Codi: " + code);
+                } else {
+                    JOptionPane.showMessageDialog(null, "El codi té que ser més gran que 0 i més petit de 999", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                String name = jtfName.getText();
+                Pattern pat = Pattern.compile("^[^\\d].*");
+                Matcher mat = pat.matcher(name);
+                if (mat.matches()) {
+                    //System.out.println("Nom: " + name);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Té que ser el nom d'un producte", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                Object family = jtfFamily.getSelectedItem();
+                //System.out.println("Familia: " + family);
+
+                String type = jtfType.getText();
+                Pattern pat2 = Pattern.compile("^[^\\d].*");
+                Matcher mat2 = pat2.matcher(type);
+                if (mat2.matches()) {
+                    //System.out.println("Tipus: " + type);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Error", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                String data2 = jtfPrice.getText();
+                double price = Double.parseDouble(data2);
+                if (price > 0) {
+                    //System.out.println("Preu: " + price);
+                } else {
+                    JOptionPane.showMessageDialog(null, "El preu té que ser més gran que 0", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                String data3 = jtfQuantity.getText();
+                int quantity = Integer.parseInt(data3);
+                if (quantity >= 0) {
+                    //System.out.println("Quantitat: " + quantity);
+                } else {
+                    JOptionPane.showMessageDialog(null, "La quantitat té que ser igual o més gran que 0", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } JOptionPane.showConfirmDialog(null, "Dades introuides correctament", "Resultat", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE);
+        } catch (NumberFormatException e1) {
+            JOptionPane.showMessageDialog(null, "Té que ser un número", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        Connection connection = null;
+        PreparedStatement pstatement = null;
+        ResultSet rs = null;
+        String server = "jdbc:mysql://localhost:3306/";
+        String bbdd = "sephora";
+        String user = "dba_java";
+        String password = "@MVM2021";
+        String sql;
+
+
+        try {
+            connection = DriverManager.getConnection(server + bbdd, user, password);
+
+            sql = "INSERT INTO productes (Codi, Nom, Familia, Tipus, Preu, Quantitat) VALUES (?,?,?,?,?,?)";
+
+            try {
+                pstatement = connection.prepareStatement(sql);
+                pstatement.setInt(1, Integer.parseInt(jtfCode.getText()));
+                pstatement.setString(2, jtfName.getText());
+                pstatement.setObject(3, jtfFamily.getSelectedItem());
+                pstatement.setString(4, jtfType.getText());
+                pstatement.setDouble(5, Double.parseDouble(jtfPrice.getText()));
+                pstatement.setInt(6, Integer.parseInt(jtfQuantity.getText()));
+                pstatement.executeUpdate();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+
+            sql = "SELECT * FROM productes";
+
+            pstatement = connection.prepareStatement(sql);
+            rs = pstatement.executeQuery();
+
+            while (rs.next()) {
+                System.out.println((rs.getString(1)));
+                System.out.println((rs.getString(2)));
+                System.out.println((rs.getString(3)));
+                System.out.println((rs.getString(4)));
+                System.out.println((rs.getString(5)));
+                System.out.println((rs.getString(6)));
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+
+       } finally {
+            rs.close();
+            pstatement.close();
+            connection.close();
+        }
     }
 
 
-}
+    }
+
