@@ -80,16 +80,27 @@ public class Sephora extends JFrame{
         jtfName.setBounds(80, 70, 350, 20);
         System.out.println(jtfName.getText());
 
-        jlbFamily.setText("Familia (1 Cosmetica, 2 Perfumeria, 3 Maquillatje)");
+        jlbFamily.setText("Familia");
         getContentPane().add(jlbFamily);
         jlbFamily.setBounds(12, 118, 300, 14);
 
-        String[] choices = { "1", "2", "3"};
-        final JComboBox<String> jtfFamily = new JComboBox<String>(choices);
+        /*String[] choices = { "1", "2", "3"};
+        final JComboBox<String> jtfFamily = new JComboBox<String>(choices);*/
+        jtfFamily = new JComboBox<String>();
+        jtfFamily.addItem("1 Cosmetica");
+        jtfFamily.addItem("2 Perfumeria");
+        jtfFamily.addItem("3 Maquillatje");
+        jtfFamily.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource()==jtfFamily) {
 
+                }
+            }
+        });
         getContentPane().add(jtfFamily);
         jtfFamily.setVisible(true);
-        jtfFamily.setBounds(315, 115, 33, 20);
+        jtfFamily.setBounds(80, 115, 100, 20);
 
         jlbType.setText("Tipus");
         getContentPane().add(jlbType);
@@ -156,7 +167,7 @@ public class Sephora extends JFrame{
         boolean typeBool = false;
         boolean priceBool = false;
         boolean quantityBool = false;
-        String family = String.valueOf(jtfFamily.getSelectedItem());
+        int family = jtfFamily.getSelectedIndex();
         try {
             if (e.getSource() == jbtOK) {
                 String data = jtfCode.getText();
@@ -180,6 +191,14 @@ public class Sephora extends JFrame{
 
                 //String family = (String) jtfFamily.getSelectedItem();
                 //System.out.println("Familia: " + family);
+
+               if (family == 0) {
+                    family += 1;
+                } else if (family == 1) {
+                    family += 1;
+                } else if (family == 2) {
+                    family += 1;
+                }
 
 
                 String type = jtfType.getText();
@@ -235,7 +254,7 @@ public class Sephora extends JFrame{
                     pstatement = connection.prepareStatement(sql);
                     pstatement.setInt(1, Integer.parseInt(jtfCode.getText()));
                     pstatement.setString(2, jtfName.getText());
-                    pstatement.setInt(3, Integer.parseInt(family));
+                    pstatement.setInt(3, family);
                     pstatement.setString(4, jtfType.getText());
                     pstatement.setDouble(5, Double.parseDouble(jtfPrice.getText()));
                     pstatement.setInt(6, Integer.parseInt(jtfQuantity.getText()));
@@ -256,8 +275,8 @@ public class Sephora extends JFrame{
                     System.out.println(String.format("Nom: %s", rs.getString(2)));
                     System.out.println(String.format("Familia: %s", rs.getInt(3)));
                     System.out.println(String.format("Tipus: %s", rs.getString(4)));
-                    System.out.println(String.format("Preu: %.2f", rs.getDouble(5)));
-                    System.out.println(String.format("Quantitat: %d", rs.getInt(6)));
+                    System.out.println(String.format("Preu: %.2f€", rs.getDouble(5)));
+                    System.out.println(String.format("Quantitat: %d %n", rs.getInt(6)));
                 }
 
             } catch (SQLException throwables) {
@@ -307,7 +326,7 @@ public class Sephora extends JFrame{
                         .min()
                         .getAsDouble();
 
-                System.out.printf("- Preu: %.2f€ %n", avgPrice);
+                System.out.printf("- Preu mig: %.2f€ %n", avgPrice);
                 System.out.printf("- Preu màx: %.2f€ %n", maxPrice);
                 System.out.printf("- Preu min: %.2f€", minPrice);
 
