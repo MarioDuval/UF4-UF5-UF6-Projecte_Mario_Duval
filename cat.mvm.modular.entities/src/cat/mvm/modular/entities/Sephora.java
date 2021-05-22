@@ -8,7 +8,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.ExceptionListener;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +30,8 @@ public class Sephora extends JFrame{
     private JTextField jtfQuantity;
     private JButton jbtOK;
     private JButton jbtStats;
+
+
 
 
     public Sephora(){
@@ -124,23 +128,41 @@ public class Sephora extends JFrame{
                 }
             }
         });
-                getContentPane().add(jbtOK);
+        getContentPane().add(jbtOK);
         jbtOK.setBounds(355, 300, 75, 24);
 
         jbtStats.setText("Estadistiques");
         jbtStats.setMnemonic('S');
         getRootPane().setDefaultButton(jbtStats);
+        jbtStats.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    jbtStatsActionPerformed(e);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        });
         getContentPane().add(jbtStats);
         jbtStats.setBounds(20, 300, 115, 24);
 
 
     }
+
     private void jbtOKActionPerformed(ActionEvent e) throws SQLException {
+        boolean codeBool = false;
+        boolean nameBool = false;
+        boolean typeBool = false;
+        boolean priceBool = false;
+        boolean quantityBool = false;
+        String family = String.valueOf(jtfFamily.getSelectedItem());
         try {
             if (e.getSource() == jbtOK) {
                 String data = jtfCode.getText();
                 int code = Integer.parseInt(data);
                 if ((code > 0) && (code < 1000)) {
+                    codeBool = true;
                     //System.out.println("Codi: " + code);
                 } else {
                     JOptionPane.showMessageDialog(null, "El codi té que ser més gran que 0 i més petit de 999", "Error", JOptionPane.ERROR_MESSAGE);
@@ -151,18 +173,21 @@ public class Sephora extends JFrame{
                 Matcher mat = pat.matcher(name);
                 if (mat.matches()) {
                     //System.out.println("Nom: " + name);
+                    nameBool = true;
                 } else {
                     JOptionPane.showMessageDialog(null, "Té que ser el nom d'un producte", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
-                Object family = jtfFamily.getSelectedItem();
+                //String family = (String) jtfFamily.getSelectedItem();
                 //System.out.println("Familia: " + family);
+
 
                 String type = jtfType.getText();
                 Pattern pat2 = Pattern.compile("^[^\\d].*");
                 Matcher mat2 = pat2.matcher(type);
                 if (mat2.matches()) {
                     //System.out.println("Tipus: " + type);
+                    typeBool = true;
                 } else {
                     JOptionPane.showMessageDialog(null, "Error", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -171,6 +196,7 @@ public class Sephora extends JFrame{
                 double price = Double.parseDouble(data2);
                 if (price > 0) {
                     //System.out.println("Preu: " + price);
+                    priceBool = true;
                 } else {
                     JOptionPane.showMessageDialog(null, "El preu té que ser més gran que 0", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -179,14 +205,73 @@ public class Sephora extends JFrame{
                 int quantity = Integer.parseInt(data3);
                 if (quantity >= 0) {
                     //System.out.println("Quantitat: " + quantity);
+                    quantityBool = true;
                 } else {
                     JOptionPane.showMessageDialog(null, "La quantitat té que ser igual o més gran que 0", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } JOptionPane.showConfirmDialog(null, "Dades introuides correctament", "Resultat", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE);
+            }
         } catch (NumberFormatException e1) {
             JOptionPane.showMessageDialog(null, "Té que ser un número", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
+        if (codeBool == true && nameBool == true &&  typeBool == true && priceBool == true && quantityBool == true) {
+
+            Connection connection = null;
+            PreparedStatement pstatement = null;
+            ResultSet rs = null;
+            String server = "jdbc:mysql://localhost:3306/";
+            String bbdd = "sephora";
+            String user = "dba_java";
+            String password = "@MVM2021";
+            String sql;
+
+
+            try {
+                connection = DriverManager.getConnection(server + bbdd, user, password);
+
+                sql = "INSERT INTO productes (Codi, Nom, Familia, Tipus, Preu, Quantitat) VALUES (?,?,?,?,?,?)";
+
+                try {
+                    pstatement = connection.prepareStatement(sql);
+                    pstatement.setInt(1, Integer.parseInt(jtfCode.getText()));
+                    pstatement.setString(2, jtfName.getText());
+                    pstatement.setInt(3, Integer.parseInt(family));
+                    pstatement.setString(4, jtfType.getText());
+                    pstatement.setDouble(5, Double.parseDouble(jtfPrice.getText()));
+                    pstatement.setInt(6, Integer.parseInt(jtfQuantity.getText()));
+                    pstatement.executeUpdate();
+                    JOptionPane.showConfirmDialog(null, "Dades introuides correctament", "Resultat", JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+
+
+                sql = "SELECT * FROM productes";
+
+                pstatement = connection.prepareStatement(sql);
+                rs = pstatement.executeQuery();
+
+                while (rs.next()) {
+                    System.out.println(String.format("Codi: %d", rs.getInt(1)));
+                    System.out.println(String.format("Nom: %s", rs.getString(2)));
+                    System.out.println(String.format("Familia: %s", rs.getInt(3)));
+                    System.out.println(String.format("Tipus: %s", rs.getString(4)));
+                    System.out.println(String.format("Preu: %.2f", rs.getDouble(5)));
+                    System.out.println(String.format("Quantitat: %d", rs.getInt(6)));
+                }
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+
+            } finally {
+                rs.close();
+                pstatement.close();
+                connection.close();
+            }
+        }
+    }
+
+    private void jbtStatsActionPerformed(ActionEvent e) throws SQLException{
         Connection connection = null;
         PreparedStatement pstatement = null;
         ResultSet rs = null;
@@ -195,51 +280,45 @@ public class Sephora extends JFrame{
         String user = "dba_java";
         String password = "@MVM2021";
         String sql;
-
-
-        try {
-            connection = DriverManager.getConnection(server + bbdd, user, password);
-
-            sql = "INSERT INTO productes (Codi, Nom, Familia, Tipus, Preu, Quantitat) VALUES (?,?,?,?,?,?)";
-
+        if (e.getSource() == jbtStats) {
             try {
+
+                connection = DriverManager.getConnection(server + bbdd, user, password);
+
+                sql = "SELECT Preu FROM productes";
                 pstatement = connection.prepareStatement(sql);
-                pstatement.setInt(1, Integer.parseInt(jtfCode.getText()));
-                pstatement.setString(2, jtfName.getText());
-                pstatement.setObject(3, jtfFamily.getSelectedItem());
-                pstatement.setString(4, jtfType.getText());
-                pstatement.setDouble(5, Double.parseDouble(jtfPrice.getText()));
-                pstatement.setInt(6, Integer.parseInt(jtfQuantity.getText()));
-                pstatement.executeUpdate();
+                rs = pstatement.executeQuery();
+
+                List<Double> prices = new ArrayList<>();
+                while (rs.next()) {
+                    prices.add(rs.getDouble(1));
+                }
+
+                double avgPrice = prices.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .average()
+                        .getAsDouble();
+                double maxPrice = prices.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .max()
+                        .getAsDouble();
+                double minPrice = prices.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .min()
+                        .getAsDouble();
+
+                System.out.printf("- Preu: %.2f€ %n", avgPrice);
+                System.out.printf("- Preu màx: %.2f€ %n", maxPrice);
+                System.out.printf("- Preu min: %.2f€", minPrice);
+
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
+            } finally {
+                rs.close();
+                pstatement.close();
+                connection.close();
             }
-
-
-            sql = "SELECT * FROM productes";
-
-            pstatement = connection.prepareStatement(sql);
-            rs = pstatement.executeQuery();
-
-            while (rs.next()) {
-                System.out.println((rs.getString(1)));
-                System.out.println((rs.getString(2)));
-                System.out.println((rs.getString(3)));
-                System.out.println((rs.getString(4)));
-                System.out.println((rs.getString(5)));
-                System.out.println((rs.getString(6)));
-            }
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-
-       } finally {
-            rs.close();
-            pstatement.close();
-            connection.close();
         }
     }
-
-
-    }
+}
 
