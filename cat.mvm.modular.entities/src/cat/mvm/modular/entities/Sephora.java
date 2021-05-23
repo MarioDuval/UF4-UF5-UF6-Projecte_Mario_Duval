@@ -15,6 +15,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Una classe per fer una aplicació d'escriptori amb entorn gràfic on els usuaris
+ * hauran de poder introduir les dades d'un article a la base de dades a partir
+ * d'un formulari.
+ * @author: Mario Duval
+ * @version: 1.0, 25/05/2021
+ */
+
 
 public class Sephora extends JFrame{  //Declaració de la classe extendida per l'interficie gràfica
     //Declaració variables
@@ -46,6 +54,10 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
         initComponents(); //crida al metode
     }
 
+    /**
+     * Mètode cridat per el constructor
+     *
+     */
     private void initComponents() {
         //Als JLabel mostrem el text que surt al costat dels camps
         jlbCode = new JLabel();
@@ -332,10 +344,12 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
 
                 connection = DriverManager.getConnection(server + bbdd, user, password);
 
+                //Select per retornar els productes sense stock
                 sql = "SELECT * FROM productes WHERE Quantitat = 0";
                 pstatement = connection.prepareStatement(sql);
                 rs = pstatement.executeQuery();
 
+                //Bucle on retorna i mostra per pantalla les dades
                 while (rs.next()) {
                     System.out.println(String.format("Codi: %d", rs.getInt(1)));
                     System.out.println(String.format("Nom: %s", rs.getString(2)));
@@ -346,18 +360,21 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
                 }
 
 
-
+                //Select per guardar els preus de la familia corresponent
                 sql = "SELECT Preu FROM productes Where Familia = 1";
                 pstatement = connection.prepareStatement(sql);
                 rs = pstatement.executeQuery();
 
+                //Emmagatzemem la llista de valors Double en una ArrayList guardada en la variable
                 List<Double> prices = new ArrayList<>();
+                //Bucle per recorrer tots els valors i retorna la primera i única columna que es on estàn els preus
                 while (rs.next()) {
                     prices.add(rs.getDouble(1));
                 }
 
+                //Fem les operacions per obtenir el promedi, màxim i mínim
                 double avgPrice = prices.stream()
-                        .mapToDouble(p -> p.doubleValue())
+                        .mapToDouble(p -> p.doubleValue())  //Indiquem que volem retornar un valor Double
                         .average()
                         .getAsDouble();
                 double maxPrice = prices.stream()
@@ -369,12 +386,14 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
                         .min()
                         .getAsDouble();
 
+                //Mostrem per pantalla els resultats de la Familia 1
                 System.out.printf("Estadística Familia 1 Cosmetica:%n");
                 System.out.printf("--------------------------------%n");
                 System.out.printf("- Preu mig: %.2f€%n", avgPrice);
                 System.out.printf("- Preu màx: %.2f€%n", maxPrice);
                 System.out.printf("- Preu min: %.2f€%n", minPrice);
 
+                //Creem i escrivim fitxer .txt de les estadistiques
                 Path path = Paths.get( "C:\\Users\\mario\\IdeaProjects\\UF4-UF5-UF6-Projecte_Mario_Duval\\estadistiques.txt");
                 try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName( "UTF-8" ))) {
                     writer.write(("Estadística Familia 1 Cosmetica:\n") +
@@ -414,6 +433,7 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
                 System.out.printf("- Preu màx: %.2f€ %n", maxPrice2);
                 System.out.printf("- Preu min: %.2f€%n", minPrice2);
 
+                //Aquí afegim les estadistiques de la Familia 2
                 try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName( "UTF-8" ), StandardOpenOption.APPEND)) {
                     writer.write(("\nEstadística Familia 2 Perfumeria:\n") +
                             ("--------------------------------\n") +
