@@ -16,7 +16,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class Sephora extends JFrame{
+public class Sephora extends JFrame{  //Declaració de la classe extendida per l'interficie gràfica
+    //Declaració variables
     private JLabel jlbCode;
     private JLabel jlbName;
     private JLabel jlbFamily;
@@ -25,7 +26,7 @@ public class Sephora extends JFrame{
     private JLabel jlbQuantity;
     private JTextField jtfCode;
     private JTextField jtfName;
-    private JComboBox jtfFamily;
+    private JComboBox jtfFamily;  //Per fer el desplegable
     private JTextField jtfType;
     private JTextField jtfPrice;
     private JTextField jtfQuantity;
@@ -36,32 +37,37 @@ public class Sephora extends JFrame{
 
 
     public Sephora(){
+        //Li donem mida i localització a la finestra
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(600, 500);
         this.setLocation(500, 100);
         this.setTitle("Sephora");
-        initComponents();
+        initComponents(); //crida al metode
     }
 
     private void initComponents() {
+        //Als JLabel mostrem el text que surt al costat dels camps
         jlbCode = new JLabel();
         jlbName = new JLabel();
         jlbFamily = new JLabel();
         jlbType = new JLabel();
         jlbPrice = new JLabel();
         jlbQuantity = new JLabel();
+        //Als JTextField corresponen un camp de text i es pot escriure
         jtfCode = new JTextField();
         jtfName = new JTextField();
         jtfFamily = new JComboBox();
         jtfType = new JTextField();
         jtfPrice = new JTextField();
         jtfQuantity = new JTextField();
+        //Creem els botons
         jbtOK = new JButton();
         jbtStats = new JButton();
 
         getContentPane().setLayout(null);
 
+        //Li donem mida i posició dintre de la finestra tant als Jlabels, com als JTextFields, com els JButtons
         jlbCode.setText("Codi");
         getContentPane().add(jlbCode);
         jlbCode.setBounds(12, 28, 116, 14);
@@ -85,12 +91,13 @@ public class Sephora extends JFrame{
         getContentPane().add(jlbFamily);
         jlbFamily.setBounds(12, 118, 300, 14);
 
-        /*String[] choices = { "1", "2", "3"};
-        final JComboBox<String> jtfFamily = new JComboBox<String>(choices);*/
+        //Creació del desplegable del valor "Familia"
         jtfFamily = new JComboBox<String>();
-        jtfFamily.addItem("1 Cosmetica");
-        jtfFamily.addItem("2 Perfumeria");
+        jtfFamily.addItem("1 Cosmetica");       //Li introduim els items que es mostren dintre
+        jtfFamily.addItem("2 Perfumeria");      //del despegable
         jtfFamily.addItem("3 Maquillatje");
+
+        //Listener per a que el programa detecti la posició escollida per l'usuari
         jtfFamily.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -130,6 +137,7 @@ public class Sephora extends JFrame{
         jbtOK.setText("OK");
         jbtOK.setMnemonic('O');
         getRootPane().setDefaultButton(jbtOK);
+        //Afegim els listeners als components
         jbtOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -162,20 +170,34 @@ public class Sephora extends JFrame{
 
     }
 
-    private void jbtOKActionPerformed(ActionEvent e) throws SQLException {
+    private void jbtOKActionPerformed(ActionEvent e) throws SQLException {  //metode on donem funció al botó "OK"
         boolean codeBool = false;
         boolean nameBool = false;
-        boolean typeBool = false;
+        boolean typeBool = false;       //Booleans per la condició
         boolean priceBool = false;
         boolean quantityBool = false;
+        /* Variable on guarda la posició del JComboBox comença desde la
+        * posició 0 pero si no retorna cap valor seleccionat retorna la
+        * posició -1. Per això es fa un listener en el desplegable.*/
         int family = jtfFamily.getSelectedIndex();
+
+        /* Les condicions fetes dins del try-catch, son per fer el control d'errors
+         * guardem les dades introduides per l'usuari en una variable
+         * si la condició es compleix les variables booleanes passen a ser true
+         * i és farà l'acció següent. Si no es compleix la condició saltarà
+         * una finestra d'error i els booleans seguiran sent false per lo que no deixarà
+         * introduir les dades
+         */
+
         try {
             if (e.getSource() == jbtOK) {
+                /*Variable per guardar les dades introduides per teclat per l'usuari
+                * dint-re del JTextField*/
                 String data = jtfCode.getText();
+                //Funció per convertir String en integer i ho guardem a la variable
                 int code = Integer.parseInt(data);
                 if ((code > 0) && (code < 1000)) {
                     codeBool = true;
-                    //System.out.println("Codi: " + code);
                 } else {
                     JOptionPane.showMessageDialog(null, "El codi té que ser més gran que 0 i més petit de 999", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -184,15 +206,15 @@ public class Sephora extends JFrame{
                 Pattern pat = Pattern.compile("^[^\\d].*");
                 Matcher mat = pat.matcher(name);
                 if (mat.matches()) {
-                    //System.out.println("Nom: " + name);
                     nameBool = true;
                 } else {
                     JOptionPane.showMessageDialog(null, "Té que ser el nom d'un producte", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
-                //String family = (String) jtfFamily.getSelectedItem();
-                //System.out.println("Familia: " + family);
-
+                /* Condició per detectar la posició seleccionada al JComboBox
+                * amb la funció getSelectedIndex(), depenen de la posició que retorni
+                * que en el nostre cas pot ser 0, 1 o 2 se li sumarà 1 per a que sigui
+                * 1, 2 i 3 que son les families que tenim*/
                if (family == 0) {
                     family += 1;
                 } else if (family == 1) {
@@ -206,16 +228,14 @@ public class Sephora extends JFrame{
                 Pattern pat2 = Pattern.compile("^[^\\d].*");
                 Matcher mat2 = pat2.matcher(type);
                 if (mat2.matches()) {
-                    //System.out.println("Tipus: " + type);
                     typeBool = true;
                 } else {
                     JOptionPane.showMessageDialog(null, "Introdueix el tipus de producte", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
                 String data2 = jtfPrice.getText();
-                double price = Double.parseDouble(data2);
+                double price = Double.parseDouble(data2);  //Funció per convertir String a Double
                 if (price > 0) {
-                    //System.out.println("Preu: " + price);
                     priceBool = true;
                 } else {
                     JOptionPane.showMessageDialog(null, "El preu té que ser més gran que 0", "Error", JOptionPane.ERROR_MESSAGE);
@@ -224,7 +244,6 @@ public class Sephora extends JFrame{
                 String data3 = jtfQuantity.getText();
                 int quantity = Integer.parseInt(data3);
                 if (quantity >= 0) {
-                    //System.out.println("Quantitat: " + quantity);
                     quantityBool = true;
                 } else {
                     JOptionPane.showMessageDialog(null, "La quantitat té que ser igual o més gran que 0", "Error", JOptionPane.ERROR_MESSAGE);
@@ -234,8 +253,12 @@ public class Sephora extends JFrame{
             JOptionPane.showMessageDialog(null, "Té que ser un número", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
+        /* Condició que una vegada superat el control d'errors, els booleans passen a ser true
+            llavors realitza la funció d'inserció dins la base de dades
+         */
         if (codeBool == true && nameBool == true &&  typeBool == true && priceBool == true && quantityBool == true) {
 
+            //Connexió amb la base de dades mysql
             Connection connection = null;
             PreparedStatement pstatement = null;
             ResultSet rs = null;
@@ -252,6 +275,7 @@ public class Sephora extends JFrame{
                 sql = "INSERT INTO productes (Codi, Nom, Familia, Tipus, Preu, Quantitat) VALUES (?,?,?,?,?,?)";
 
                 try {
+                    //Obtenim els valors introduits per l'usuari
                     pstatement = connection.prepareStatement(sql);
                     pstatement.setInt(1, Integer.parseInt(jtfCode.getText()));
                     pstatement.setString(2, jtfName.getText());
@@ -271,6 +295,9 @@ public class Sephora extends JFrame{
                 pstatement = connection.prepareStatement(sql);
                 rs = pstatement.executeQuery();
 
+                /* Bucle per mostrar tots els valors que es troben dins la base de dades
+                    antics i nous
+                * */
                 while (rs.next()) {
                     System.out.println(String.format("Codi: %d", rs.getInt(1)));
                     System.out.println(String.format("Nom: %s", rs.getString(2)));
@@ -282,7 +309,6 @@ public class Sephora extends JFrame{
 
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
-
             } finally {
                 rs.close();
                 pstatement.close();
@@ -291,6 +317,7 @@ public class Sephora extends JFrame{
         }
     }
 
+    //metode on donem funció al botó "Estadístiques"
     private void jbtStatsActionPerformed(ActionEvent e) throws SQLException, IOException {
         Connection connection = null;
         PreparedStatement pstatement = null;
