@@ -1,0 +1,17 @@
+Estadística Familia 1 Cosmetica:
+--------------------------------
+- Preu mig: 12.979999999999999€
+- Preu màx: 18.99€
+- Preu min: 5.0€
+
+Estadística Familia 2 Perfumeria:
+--------------------------------
+- Preu mig: 70.63€
+- Preu màx: 85.95€
+- Preu min: 59.95€
+
+Estadística Familia 3 Maquillatje:
+--------------------------------
+- Preu mig: 23.143333333333334€
+- Preu màx: 28.69€
+- Preu min: 19.99€

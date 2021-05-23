@@ -1,15 +1,16 @@
 package cat.mvm.modular.entities;
 
-import cat.mvm.modular.products.Calculator;
-import cat.mvm.modular.entities.Data;
-
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
-import java.beans.ExceptionListener;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -150,7 +151,7 @@ public class Sephora extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 try {
                     jbtStatsActionPerformed(e);
-                } catch (SQLException throwables) {
+                } catch (SQLException | IOException throwables) {
                     throwables.printStackTrace();
                 }
             }
@@ -208,7 +209,7 @@ public class Sephora extends JFrame{
                     //System.out.println("Tipus: " + type);
                     typeBool = true;
                 } else {
-                    JOptionPane.showMessageDialog(null, "Error", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Introdueix el tipus de producte", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
                 String data2 = jtfPrice.getText();
@@ -290,7 +291,7 @@ public class Sephora extends JFrame{
         }
     }
 
-    private void jbtStatsActionPerformed(ActionEvent e) throws SQLException{
+    private void jbtStatsActionPerformed(ActionEvent e) throws SQLException, IOException {
         Connection connection = null;
         PreparedStatement pstatement = null;
         ResultSet rs = null;
@@ -304,7 +305,22 @@ public class Sephora extends JFrame{
 
                 connection = DriverManager.getConnection(server + bbdd, user, password);
 
-                sql = "SELECT Preu FROM productes";
+                sql = "SELECT * FROM productes WHERE Quantitat = 0";
+                pstatement = connection.prepareStatement(sql);
+                rs = pstatement.executeQuery();
+
+                while (rs.next()) {
+                    System.out.println(String.format("Codi: %d", rs.getInt(1)));
+                    System.out.println(String.format("Nom: %s", rs.getString(2)));
+                    System.out.println(String.format("Familia: %s", rs.getInt(3)));
+                    System.out.println(String.format("Tipus: %s", rs.getString(4)));
+                    System.out.println(String.format("Preu: %.2f€", rs.getDouble(5)));
+                    System.out.println(String.format("Quantitat: %d %n", rs.getInt(6)));
+                }
+
+
+
+                sql = "SELECT Preu FROM productes Where Familia = 1";
                 pstatement = connection.prepareStatement(sql);
                 rs = pstatement.executeQuery();
 
@@ -326,9 +342,94 @@ public class Sephora extends JFrame{
                         .min()
                         .getAsDouble();
 
-                System.out.printf("- Preu mig: %.2f€ %n", avgPrice);
-                System.out.printf("- Preu màx: %.2f€ %n", maxPrice);
-                System.out.printf("- Preu min: %.2f€", minPrice);
+                System.out.printf("Estadística Familia 1 Cosmetica:%n");
+                System.out.printf("--------------------------------%n");
+                System.out.printf("- Preu mig: %.2f€%n", avgPrice);
+                System.out.printf("- Preu màx: %.2f€%n", maxPrice);
+                System.out.printf("- Preu min: %.2f€%n", minPrice);
+
+                Path path = Paths.get( "C:\\Users\\mario\\IdeaProjects\\UF4-UF5-UF6-Projecte_Mario_Duval\\estadistiques.txt");
+                try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName( "UTF-8" ))) {
+                    writer.write(("Estadística Familia 1 Cosmetica:\n") +
+                            ("--------------------------------\n") +
+                            ("- Preu mig: " + avgPrice + "€\n") +
+                            ("- Preu màx: " + maxPrice + "€\n") +
+                            ("- Preu min: " + minPrice + "€\n"));
+                }
+
+                sql = "SELECT Preu FROM productes Where Familia = 2";
+                pstatement = connection.prepareStatement(sql);
+                rs = pstatement.executeQuery();
+
+                List<Double> prices2 = new ArrayList<>();
+                while (rs.next()) {
+                    prices2.add(rs.getDouble(1));
+                }
+
+                double avgPrice2 = prices2.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .average()
+                        .getAsDouble();
+                double maxPrice2 = prices2.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .max()
+                        .getAsDouble();
+                double minPrice2 = prices2.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .min()
+                        .getAsDouble();
+
+
+
+                System.out.printf("%nEstadística Familia 2 Perfumeria:%n");
+                System.out.printf("--------------------------------%n");
+                System.out.printf("- Preu mig: %.2f€ %n", avgPrice2);
+                System.out.printf("- Preu màx: %.2f€ %n", maxPrice2);
+                System.out.printf("- Preu min: %.2f€%n", minPrice2);
+
+                try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName( "UTF-8" ), StandardOpenOption.APPEND)) {
+                    writer.write(("\nEstadística Familia 2 Perfumeria:\n") +
+                            ("--------------------------------\n") +
+                            ("- Preu mig: " + avgPrice2 + "€\n") +
+                            ("- Preu màx: " + maxPrice2 + "€\n") +
+                            ("- Preu min: " + minPrice2 + "€\n"));
+                }
+
+                sql = "SELECT Preu FROM productes Where Familia = 3";
+                pstatement = connection.prepareStatement(sql);
+                rs = pstatement.executeQuery();
+
+                List<Double> prices3 = new ArrayList<>();
+                while (rs.next()) {
+                    prices3.add(rs.getDouble(1));
+                }
+
+                double avgPrice3 = prices3.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .average()
+                        .getAsDouble();
+                double maxPrice3 = prices3.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .max()
+                        .getAsDouble();
+                double minPrice3 = prices3.stream()
+                        .mapToDouble(p -> p.doubleValue())
+                        .min()
+                        .getAsDouble();
+
+                System.out.printf("%nEstadística Familia 3 Maquillatje:%n");
+                System.out.printf("--------------------------------%n");
+                System.out.printf("- Preu mig: %.2f€ %n", avgPrice3);
+                System.out.printf("- Preu màx: %.2f€ %n", maxPrice3);
+                System.out.printf("- Preu min: %.2f€", minPrice3);
+
+                try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName( "UTF-8" ), StandardOpenOption.APPEND)) {
+                    writer.write(("\nEstadística Familia 3 Maquillatje:\n") +
+                            ("--------------------------------\n") +
+                            ("- Preu mig: " + avgPrice3 + "€\n") +
+                            ("- Preu màx: " + maxPrice3 + "€\n") +
+                            ("- Preu min: " + minPrice3 + "€\n"));
+                }
 
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
