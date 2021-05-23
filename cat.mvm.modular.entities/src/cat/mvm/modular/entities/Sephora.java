@@ -1,5 +1,13 @@
 package cat.mvm.modular.entities;
 
+/**
+ * Una classe per fer una aplicaci&oacute; d'escriptori amb entorn gr&agrave;fic on els usuaris
+ * hauran de poder introduir les dades d'un article a la base de dades a partir
+ * d'un formulari.
+ * @author: Mario Duval
+ * @version: 1.0, 25/05/2021
+ */
+
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.BufferedWriter;
@@ -15,48 +23,59 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+
+
 /**
- * Una classe per fer una aplicació d'escriptori amb entorn gràfic on els usuaris
- * hauran de poder introduir les dades d'un article a la base de dades a partir
- * d'un formulari.
- * @author: Mario Duval
- * @version: 1.0, 25/05/2021
+ * Declaraci&oacute; de la classe extendida per l'interf&iacute;cie gr&agrave;fica
  */
-
-
-public class Sephora extends JFrame{  //Declaració de la classe extendida per l'interficie gràfica
+public class Sephora extends JFrame{
     //Declaració variables
+    /** Etiqueta per mostrar text */
     private JLabel jlbCode;
+    /** Etiqueta per mostrar text */
     private JLabel jlbName;
+    /** Etiqueta per mostrar text */
     private JLabel jlbFamily;
+    /** Etiqueta per mostrar text */
     private JLabel jlbType;
+    /** Etiqueta per mostrar text */
     private JLabel jlbPrice;
+    /** Etiqueta per mostrar text */
     private JLabel jlbQuantity;
+    /** Camp de text per a que l'usuari escrigui */
     private JTextField jtfCode;
+    /** Camp de text per a que l'usuari escrigui */
     private JTextField jtfName;
-    private JComboBox jtfFamily;  //Per fer el desplegable
+    /** Per fer el desplegable */
+    private JComboBox jtfFamily;
+    /** Camp de text per a que l'usuari escrigui */
     private JTextField jtfType;
+    /** Camp de text per a que l'usuari escrigui */
     private JTextField jtfPrice;
+    /** Camp de text per a que l'usuari escrigui */
     private JTextField jtfQuantity;
+    /** Bot&oacute; per inserir les dades*/
     private JButton jbtOK;
+    /** Bot&oacute; per mostrar les estad&iacute;stiques*/
     private JButton jbtStats;
 
-
-
-
+    /**
+     * Li donem mida i localitzaci&oacute; a la finestra, i fem
+     * la crida del m&egrave;tode
+     */
     public Sephora(){
-        //Li donem mida i localització a la finestra
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(600, 500);
         this.setLocation(500, 100);
         this.setTitle("Sephora");
-        initComponents(); //crida al metode
-    }
+        initComponents();
+    } //Tancament constructor
 
     /**
-     * Mètode cridat per el constructor
-     *
+     * M&egrave;tode cridat per el constructor per afegir els continguts
+     * dins la finestra, per inicar el formulari.
      */
     private void initComponents() {
         //Als JLabel mostrem el text que surt al costat dels camps
@@ -109,7 +128,12 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
         jtfFamily.addItem("2 Perfumeria");      //del despegable
         jtfFamily.addItem("3 Maquillatje");
 
-        //Listener per a que el programa detecti la posició escollida per l'usuari
+
+        /**
+         * Listener per a que el programa detecti la posici&oacute; escollida per l'usuari
+         * @param e ens proporciona informaci&oacute; de l'acci&oacute; produ&iuml;da, que en aquest
+         *          cas ve d'un control d'una llista
+         */
         jtfFamily.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -149,7 +173,13 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
         jbtOK.setText("OK");
         jbtOK.setMnemonic('O');
         getRootPane().setDefaultButton(jbtOK);
-        //Afegim els listeners als components
+
+        /**
+         * Afegim els listeners als components
+         * @param e ens proporciona informaci&oacute; de l'acci&oacute; produ&iuml;da, en el bot&oacute;.
+         * @throws SQLException Una excepci&oacute; que proporciona informaci&oacute; sobre
+         * un error d'acc&eacute;s a la base de dades o altres errors.
+         */
         jbtOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -180,9 +210,15 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
         jbtStats.setBounds(20, 300, 115, 24);
 
 
-    }
+    } //Tancament del mètode
 
-    private void jbtOKActionPerformed(ActionEvent e) throws SQLException {  //metode on donem funció al botó "OK"
+    /**
+     * M&egrave;tode on donem funci&oacute; al bot&oacute; "OK"
+     * @param e ens proporciona informaci&oacute; de l'acci&oacute; produ&iuml;da, en el bot&oacute;.
+     * @throws SQLException Una excepci&oacute; que proporciona informaci&oacute; sobre
+     * un error d'acc&eacute;s a la base de dades o altres errors.
+     */
+    private void jbtOKActionPerformed(ActionEvent e) throws SQLException {
         boolean codeBool = false;
         boolean nameBool = false;
         boolean typeBool = false;       //Booleans per la condició
@@ -326,10 +362,17 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
                 pstatement.close();
                 connection.close();
             }
-        }
-    }
+        } //Tancament de la condició
+    } //Tancament del mètode
 
-    //metode on donem funció al botó "Estadístiques"
+    /**
+     * M&egrave;tode on donem funci&oacute; al bot&oacute; "Estad&iacute;stiques"
+     * @param e ens proporciona informaci&oacute; de l'acci&oacute; produ&iuml;da, en el bot&oacute;.
+     * @throws SQLException Una excepci&oacute; que proporciona informaci&oacute; sobre
+     * un error d'acc&eacute;s a la base de dades o altres errors.
+     * @throws IOException Aquesta classe &eacute;s la classe general d'excepcions
+     * produ&iuml;des per operacions I/0 fallides o interrompudes
+     */
     private void jbtStatsActionPerformed(ActionEvent e) throws SQLException, IOException {
         Connection connection = null;
         PreparedStatement pstatement = null;
@@ -485,7 +528,7 @@ public class Sephora extends JFrame{  //Declaració de la classe extendida per l
                 pstatement.close();
                 connection.close();
             }
-        }
-    }
-}
+        } //Tancament de la condició
+    } //Tancament del mètode
+} //Tancament de la classe
 
