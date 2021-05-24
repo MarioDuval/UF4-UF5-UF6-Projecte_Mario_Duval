@@ -9,6 +9,7 @@ package cat.mvm.modular.entities;
  */
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -70,6 +71,9 @@ public class Sephora extends JFrame{
         this.setSize(600, 500);
         this.setLocation(500, 100);
         this.setTitle("Sephora");
+        Toolkit screen = Toolkit.getDefaultToolkit();
+        Image myIcon = screen.getImage("cat.mvm.modular.entities/src/cat/mvm/modular/entities/sephora.png");
+        this.setIconImage(myIcon);
         initComponents();
     } //Tancament constructor
 
@@ -392,6 +396,9 @@ public class Sephora extends JFrame{
                 pstatement = connection.prepareStatement(sql);
                 rs = pstatement.executeQuery();
 
+
+                System.out.printf("Productes sense stock:%n");
+                System.out.printf("----------------------%n");
                 //Bucle on retorna i mostra per pantalla les dades
                 while (rs.next()) {
                     System.out.println(String.format("Codi: %d", rs.getInt(1)));
